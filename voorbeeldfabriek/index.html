@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vloerdossier Demo Foods</title>
+<style>
+:root{
+  --groen:#78B41E; --groen-donker:#639414; --groen-licht:#8BC63F; --groen-vlak:#F2F8E8;
+  --tekst:#58595B; --titel:#6D6E71; --wit:#FFFFFF; --bg:#FFFFFF; --bg2:#FAFAF8; --blob:#F0F0EE; --rand:#ECECEA;
+  --kaart:#FFFFFF; --muted:#8A8B8E;
+  --ok:#78B41E; --let:#D9A400; --kritiek:#B84A2B;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --tekst:#D6D6D3; --titel:#E6E6E2; --bg:#1E1F20; --bg2:#242526; --blob:#2A2B2C; --rand:#3A3B3C; --kaart:#262728; --muted:#9A9B9E; --groen-vlak:#2C3620; --wit:#1E1F20;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --tekst:#D6D6D3; --titel:#E6E6E2; --bg:#1E1F20; --bg2:#242526; --blob:#2A2B2C; --rand:#3A3B3C; --kaart:#262728; --muted:#9A9B9E; --groen-vlak:#2C3620; --wit:#1E1F20;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{height:100%}
+body{margin:0;background:var(--bg);color:var(--tekst);font:400 15px/1.65 'Segoe UI',system-ui,-apple-system,'Helvetica Neue',sans-serif;padding-inline:16px;padding-block:0 60px;position:relative}
+h1,h2,h3{color:var(--titel);text-transform:uppercase;font-weight:800;letter-spacing:.02em;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.4rem,3vw,2rem)}
+h2{font-size:1.15rem}
+h3{font-size:.95rem}
+.kicker{color:var(--groen);text-transform:uppercase;letter-spacing:.14em;font-weight:800;font-size:.78rem}
+.wrap{max-width:1140px;margin:0 auto}
+a{color:var(--groen-donker)}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--groen);color:#fff;border:0;border-radius:6px;padding:9px 16px;font-weight:700}
+.btn:hover{background:var(--groen-donker)}
+.btn.ghost{background:transparent;color:var(--tekst);border:2px solid var(--tekst);padding:7px 14px}
+.btn.ghost:hover{background:var(--tekst);color:var(--bg)}
+.btn:focus-visible,.tab:focus-visible,.zone:focus-visible{outline:3px solid var(--groen-licht);outline-offset:2px}
+
+/* watermerk */
+.wm{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden;opacity:.09}
+.wm span{position:absolute;white-space:nowrap;font-weight:800;font-size:22px;color:var(--titel);transform:rotate(-24deg);letter-spacing:.1em}
+
+/* header */
+header{border-bottom:1px solid var(--rand);padding-block:14px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:20}
+header .wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.merk{display:flex;align-items:center;gap:10px}
+.keien{width:34px;height:34px}
+.merk b{color:var(--titel);font-weight:800;letter-spacing:.06em;font-size:1rem}
+.merk small{display:block;letter-spacing:.34em;font-size:.6rem;color:var(--tekst);text-transform:lowercase}
+.klant{margin-left:auto;text-align:right;font-size:.85rem;line-height:1.35}
+.klant b{color:var(--titel)}
+.demo{display:inline-block;background:var(--groen);color:#fff;border-radius:100px;padding:2px 10px;font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+
+/* tabs */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-block:22px 18px}
+.tab{border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);border-radius:100px;padding:7px 16px;font-weight:600}
+.tab[aria-selected="true"]{background:var(--groen);border-color:var(--groen);color:#fff}
+section[role="tabpanel"][hidden]{display:none}
+
+/* overzicht */
+.tegels{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-block:18px}
+.tegel{background:var(--kaart);border:1px solid var(--rand);border-radius:12px;padding:14px 16px}
+.tegel .n{font-size:1.7rem;font-weight:800;color:var(--titel);font-variant-numeric:tabular-nums;line-height:1.1}
+.tegel .l{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.tegel.let .n{color:var(--let)}
+
+.plan-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.plan-grid{grid-template-columns:1fr}}
+.plan{background:var(--kaart);border:1px solid var(--rand);border-radius:14px;padding:14px;overflow-x:auto}
+.plan svg{width:100%;height:auto;display:block;max-width:100%}
+.zone{cursor:pointer}
+.zone rect,.zone path{fill:var(--blob);stroke:var(--titel);stroke-width:1.5;transition:fill .15s}
+.zone:hover rect,.zone:hover path{fill:var(--groen-vlak)}
+.zone.actief rect,.zone.actief path{fill:var(--groen-vlak);stroke:var(--groen);stroke-width:3}
+.zone text{fill:var(--tekst);font-size:13px;font-weight:700;pointer-events:none}
+.zone .sub{font-size:10.5px;font-weight:400;fill:var(--muted)}
+.marker{pointer-events:none}
+.marker circle{stroke:#fff;stroke-width:2}
+.marker.ok circle{fill:var(--ok)}
+.marker.let circle{fill:var(--let)}
+.marker.kritiek circle{fill:var(--kritiek)}
+.marker text{fill:#fff;font-size:10px;font-weight:800;text-anchor:middle}
+.legende{display:flex;gap:16px;flex-wrap:wrap;font-size:.8rem;margin-top:8px;color:var(--muted)}
+.legende i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.pijl{fill:var(--muted);font-size:10px}
+
+.detail{background:var(--kaart);border:1px solid var(--rand);border-radius:14px;padding:18px}
+.detail h2{font-size:1.05rem}
+.status{display:inline-block;border-radius:100px;padding:2px 10px;font-size:.72rem;font-weight:800;color:#fff;letter-spacing:.06em;text-transform:uppercase}
+.status.ok{background:var(--ok)}.status.let{background:var(--let)}.status.kritiek{background:var(--kritiek)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:14px 0;font-size:.9rem}
+dt{color:var(--muted);font-weight:600}
+dd{margin:0;color:var(--tekst)}
+.belasting{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--rand);background:var(--bg2);border-radius:100px;padding:2px 10px;font-size:.78rem}
+.chip.hoog{border-color:var(--let);color:var(--let);font-weight:700}
+.lijst{list-style:none;margin:0;padding:0}
+.lijst li{padding:9px 0;border-top:1px solid var(--rand);font-size:.9rem}
+.lijst li:first-child{border-top:0}
+.lijst .d{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.8rem}
+.check li::before{content:"✓ ";color:var(--groen);font-weight:800}
+
+/* tijdlijn */
+.tl{list-style:none;margin:0;padding:0;border-left:2px solid var(--rand);margin-left:8px}
+.tl li{position:relative;padding:0 0 22px 24px}
+.tl li::before{content:"";position:absolute;left:-8px;top:6px;width:14px;height:14px;border-radius:50%;background:var(--groen);border:3px solid var(--bg)}
+.tl li.gepland::before{background:var(--bg);border:3px solid var(--groen)}
+.tl .d{font-weight:800;color:var(--titel);font-variant-numeric:tabular-nums}
+.tl .z{color:var(--groen-donker);font-weight:700}
+.tl p{margin:4px 0 6px}
+.doc{display:inline-block;font-size:.75rem;border:1px solid var(--rand);border-radius:6px;padding:1px 8px;margin:2px 4px 0 0;color:var(--muted)}
+.tl-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+
+/* kalender tabel */
+.tabelwrap{overflow-x:auto;border:1px solid var(--rand);border-radius:12px;background:var(--kaart)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.88rem}
+th,td{text-align:left;padding:10px 12px;border-top:1px solid var(--rand);vertical-align:top}
+th{border-top:0;color:var(--muted);text-transform:uppercase;font-size:.72rem;letter-spacing:.08em;background:var(--bg2)}
+td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* rapport */
+.rapport{background:var(--kaart);border:1px solid var(--rand);border-radius:14px;padding:28px;max-width:860px}
+.rapport .kop{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--groen);padding-bottom:14px;margin-bottom:18px}
+.rapport h3{margin-top:22px;margin-bottom:8px}
+.rapport p{margin:6px 0;max-width:68ch}
+.rapport .hand{margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:20px;font-size:.85rem}
+.rapport .hand div{border-top:1px solid var(--rand);padding-top:8px}
+.rapport-acties{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.hint{font-size:.82rem;color:var(--muted)}
+
+/* melding */
+.melding{background:var(--kaart);border:1px solid var(--rand);border-radius:14px;padding:20px;max-width:620px}
+.melding label{display:block;font-weight:700;font-size:.85rem;margin:12px 0 4px;color:var(--titel)}
+.melding input,.melding select,.melding textarea{width:100%;border:1px solid var(--rand);border-radius:6px;padding:8px 10px;font:inherit;background:var(--bg);color:var(--tekst)}
+.melding textarea{min-height:90px}
+.toast{background:var(--groen-vlak);border:1px solid var(--groen);border-radius:8px;padding:10px 14px;margin-top:14px;font-size:.9rem}
+
+/* toegang */
+.toegang{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.toegang .kaart{background:var(--kaart);border:1px solid var(--rand);border-radius:12px;padding:16px}
+.toegang .rol{font-weight:800;color:var(--titel)}
+.log li{font-size:.83rem}
+
+/* band */
+.band{background:var(--groen-licht);color:#fff;border-radius:14px;padding:22px 24px;margin-top:34px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+.band b{font-size:1.05rem;text-transform:uppercase;letter-spacing:.04em}
+.band .btn{background:#fff;color:var(--groen-donker)}
+footer{font-size:.78rem;color:var(--muted);margin-top:28px;text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wm" aria-hidden="true" id="wm"></div>
+
+<header>
+  <div class="wrap">
+    <div class="merk">
+      <svg class="keien" viewBox="0 0 40 40" aria-hidden="true"><path d="M6 14c-2-6 4-10 9-8s7 6 4 10-11 4-13-2z" fill="#78B41E"/><path d="M22 8c4-3 11-1 12 4s-2 9-7 9-9-4-8-8c0-2 1-4 3-5z" fill="#58595B"/><path d="M4 28c-1-5 4-8 9-7s7 6 5 10-12 3-14-3z" fill="#58595B"/><path d="M21 24c4-3 12-1 13 5s-4 9-9 8-8-5-7-9c0-2 1-3 3-4z" fill="#78B41E"/></svg>
+      <div><b>STONE FLOORS</b><small>doet steen leven</small></div>
+    </div>
+    <div class="klant">
+      <span class="demo">Demo-omgeving</span><br>
+      <b>Demo Foods nv</b> · Vleeswarenverwerking · Fictieve klant
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="tabs" role="tablist" aria-label="Onderdelen van het dossier">
+    <button class="tab" role="tab" aria-selected="true" data-tab="plan" id="tab-plan">Plan &amp; zones</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="historiek" id="tab-historiek">Historiek</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="kalender" id="tab-kalender">Inspectiekalender</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="rapport" id="tab-rapport">Auditrapport</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="melding" id="tab-melding">Schade melden</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="toegang" id="tab-toegang">Toegang &amp; log</button>
+  </div>
+
+  <!-- PLAN -->
+  <section role="tabpanel" id="panel-plan" aria-labelledby="tab-plan">
+    <div class="kicker">Vloerdossier</div>
+    <h1>Demo Foods nv · Productiesite Roeselare</h1>
+    <p style="max-width:68ch">Alle vloerzones, het gebruikte systeem, de laatste interventie en de volgende inspectie op één plan. Klik op een zone voor het detail.</p>
+
+    <div class="tegels" id="tegels"></div>
+
+    <div class="plan-grid">
+      <div>
+        <div class="plan">
+          <svg viewBox="0 0 760 470" role="img" aria-label="Grondplan van de productiesite met zes vloerzones">
+            <rect x="10" y="10" width="740" height="450" fill="none" stroke="var(--titel)" stroke-width="2.5"/>
+            <text x="20" y="30" class="pijl">N ↑ &nbsp; schaal indicatief</text>
+
+            <g class="zone" data-zone="A" tabindex="0" role="button" aria-label="Zone A productiehal">
+              <rect x="30" y="50" width="330" height="220" rx="4"/>
+              <text x="46" y="78">A · Productiehal</text>
+              <text x="46" y="96" class="sub">Ucrete UD200 · 9 mm · 1.480 m²</text>
+            </g>
+            <g class="zone" data-zone="B" tabindex="0" role="button" aria-label="Zone B wasplaats">
+              <rect x="380" y="50" width="160" height="130" rx="4"/>
+              <text x="394" y="78">B · Wasplaats</text>
+              <text x="394" y="96" class="sub">UD200 · 12 mm · 210 m²</text>
+            </g>
+            <g class="zone" data-zone="C" tabindex="0" role="button" aria-label="Zone C koelcel">
+              <rect x="560" y="50" width="170" height="130" rx="4"/>
+              <text x="574" y="78">C · Koelcel −2 °C</text>
+              <text x="574" y="96" class="sub">Ucrete HF · 6 mm · 220 m²</text>
+            </g>
+            <g class="zone" data-zone="D" tabindex="0" role="button" aria-label="Zone D verpakking">
+              <rect x="380" y="200" width="350" height="70" rx="4"/>
+              <text x="394" y="228">D · Verpakking</text>
+              <text x="394" y="246" class="sub">Ucrete MF · 4 mm · 640 m²</text>
+            </g>
+            <g class="zone" data-zone="E" tabindex="0" role="button" aria-label="Zone E expeditie">
+              <rect x="30" y="290" width="450" height="150" rx="4"/>
+              <text x="46" y="318">E · Expeditie &amp; laadkaai</text>
+              <text x="46" y="336" class="sub">Epoxy EP-coating · 2 mm · 1.150 m²</text>
+            </g>
+            <g class="zone" data-zone="F" tabindex="0" role="button" aria-label="Zone F droge opslag">
+              <rect x="500" y="290" width="230" height="150" rx="4"/>
+              <text x="514" y="318">F · Droge opslag</text>
+              <text x="514" y="336" class="sub">Betonvloer geslepen · 590 m²</text>
+            </g>
+
+            <!-- deuren -->
+            <line x1="360" y1="140" x2="380" y2="140" stroke="var(--groen)" stroke-width="4"/>
+            <line x1="200" y1="270" x2="200" y2="290" stroke="var(--groen)" stroke-width="4"/>
+            <line x1="460" y1="180" x2="460" y2="200" stroke="var(--groen)" stroke-width="4"/>
+            <line x1="480" y1="360" x2="500" y2="360" stroke="var(--groen)" stroke-width="4"/>
+            <rect x="60" y="446" width="70" height="7" fill="var(--groen)"/><text x="140" y="454" class="pijl">laadkaai 1</text>
+            <rect x="240" y="446" width="70" height="7" fill="var(--groen)"/><text x="320" y="454" class="pijl">laadkaai 2</text>
+
+            <!-- markers -->
+            <g class="marker ok"><circle cx="300" cy="200" r="11"/><text x="300" y="204">1</text></g>
+            <g class="marker ok"><circle cx="120" cy="230" r="11"/><text x="120" y="234">2</text></g>
+            <g class="marker let"><circle cx="470" cy="150" r="11"/><text x="470" y="154">3</text></g>
+            <g class="marker ok"><circle cx="640" cy="150" r="11"/><text x="640" y="154">4</text></g>
+            <g class="marker kritiek"><circle cx="330" cy="410" r="11"/><text x="330" y="414">5</text></g>
+            <g class="marker ok"><circle cx="600" cy="240" r="11"/><text x="600" y="244">6</text></g>
+          </svg>
+        </div>
+        <div class="legende">
+          <span><i style="background:var(--ok)"></i>Hersteld, binnen garantie</span>
+          <span><i style="background:var(--let)"></i>Opvolgen bij volgende inspectie</span>
+          <span><i style="background:var(--kritiek)"></i>Actie gepland</span>
+          <span><i style="background:var(--groen);border-radius:2px"></i>Doorgang / laadkaai</span>
+        </div>
+      </div>
+      <aside class="detail" id="detail" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <!-- HISTORIEK -->
+  <section role="tabpanel" id="panel-historiek" aria-labelledby="tab-historiek" hidden>
+    <div class="kicker">Onderhoudshistoriek</div>
+    <h2>Alle interventies sinds de aanleg</h2>
+    <p class="hint">Elke interventie met zone, systeem, laagdikte, uitvoerder en de gekoppelde documenten. Filter op zone.</p>
+    <div class="tl-filter" id="tl-filter"></div>
+    <ul class="tl" id="tijdlijn"></ul>
+  </section>
+
+  <!-- KALENDER -->
+  <section role="tabpanel" id="panel-kalender" aria-labelledby="tab-kalender" hidden>
+    <div class="kicker">Planning</div>
+    <h2>Inspectiekalender &amp; garantie</h2>
+    <p class="hint">Per zone: garantietermijn, aanbevolen inspectiefrequentie en de volgende geplande inspectie. Belasting bepaalt de frequentie.</p>
+    <div class="tabelwrap">
+      <table id="kalender">
+        <thead><tr><th>Zone</th><th>Systeem</th><th>Aangelegd</th><th>Garantie tot</th><th>Belasting</th><th>Inspectie</th><th>Volgende</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <h3 style="margin-top:26px">Reinigingsadvies per zone</h3>
+    <div class="tabelwrap" style="margin-top:8px">
+      <table>
+        <thead><tr><th>Zone</th><th>Dagelijks</th><th>Wekelijks</th><th>Niet toegelaten</th></tr></thead>
+        <tbody>
+          <tr><td>A · Productiehal</td><td>Alkalische schuimreiniger, naspoelen ≤ 60 °C</td><td>Desinfectie, controle afvoergoten</td><td>Stoomreiniging &gt; 120 °C op UD200 9 mm</td></tr>
+          <tr><td>B · Wasplaats</td><td>Alkalische schuimreiniger, hete spoeling toegelaten</td><td>Controle aansluiting vloer-goot</td><td>Zuur ontkalker pH &lt; 2 langdurig laten inwerken</td></tr>
+          <tr><td>C · Koelcel</td><td>Droog vegen</td><td>Neutrale reiniger, vloer droog wrijven</td><td>Water laten staan bij −2 °C</td></tr>
+          <tr><td>D · Verpakking</td><td>Schrobzuigmachine, neutrale reiniger</td><td>Controle plinten</td><td>Chloor onverdund</td></tr>
+          <tr><td>E · Expeditie</td><td>Schrobzuigmachine</td><td>Controle heftruckbanen op slijtage</td><td>Stalen wielen, slepen van paletten</td></tr>
+          <tr><td>F · Droge opslag</td><td>Vegen</td><td>Schrobzuigmachine</td><td>Nat reinigen zonder afvoer</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- RAPPORT -->
+  <section role="tabpanel" id="panel-rapport" aria-labelledby="tab-rapport" hidden>
+    <div class="kicker">Voor de auditor</div>
+    <h2>Auditrapport vloeren</h2>
+    <div class="rapport-acties">
+      <button class="btn" id="kopieer">Rapporttekst kopiëren</button>
+      <span class="hint">In de echte omgeving wordt dit rapport als PDF met logo en handtekening gedownload.</span>
+    </div>
+    <article class="rapport" id="rapport">
+      <div class="kop">
+        <div>
+          <div class="kicker">Stonefloors bv</div>
+          <h2 style="font-size:1.2rem">Verklaring onderhoud &amp; staat van de vloeren</h2>
+          <div class="hint">Demo Foods nv · Productiesite Roeselare · Referentie SF-DEMO-2026-09</div>
+        </div>
+        <div style="text-align:right;font-size:.85rem"><b>Opgemaakt</b><br><span id="rap-datum"></span><br><b>Geldig tot</b><br><span id="rap-geldig"></span></div>
+      </div>
+      <h3>1. Doel</h3>
+      <p>Dit rapport geeft een overzicht van de vloersystemen op de site, de uitgevoerde interventies en de actuele staat per zone. Het is bedoeld als bewijsstuk bij audits (BRCGS, IFS, FAVV) waarbij de integriteit en reinigbaarheid van vloeren in productieruimtes wordt beoordeeld.</p>
+      <h3>2. Vloersystemen in gebruik</h3>
+      <div class="tabelwrap"><table id="rap-systemen"><thead><tr><th>Zone</th><th>Systeem</th><th>Dikte</th><th>Geschiktheid</th><th>Fiche</th></tr></thead><tbody></tbody></table></div>
+      <h3>3. Interventies afgelopen 24 maanden</h3>
+      <ul class="lijst" id="rap-interventies"></ul>
+      <h3>4. Actuele staat en openstaande punten</h3>
+      <ul class="lijst" id="rap-staat"></ul>
+      <h3>5. Verklaring</h3>
+      <p>Stonefloors bv verklaart dat de hierboven vermelde werken werden uitgevoerd volgens de voorschriften van de systeemfabrikant, door eigen VCA*-gecertificeerd personeel, en dat de vloeren in de gemarkeerde zones op datum van dit rapport voldoen aan de eisen inzake naadloosheid, reinigbaarheid en chemische bestendigheid voor het opgegeven gebruik.</p>
+      <div class="hand">
+        <div><b>Voor Stonefloors bv</b><br>Projectverantwoordelijke<br>Ardooisesteenweg 303H · 8800 Roeselare</div>
+        <div><b>Voor Demo Foods nv</b><br>Kwaliteitsverantwoordelijke<br>Gezien voor kennisname</div>
+      </div>
+    </article>
+  </section>
+
+  <!-- MELDING -->
+  <section role="tabpanel" id="panel-melding" aria-labelledby="tab-melding" hidden>
+    <div class="kicker">Tweerichtingsverkeer</div>
+    <h2>Schade of slijtage melden</h2>
+    <p class="hint" style="max-width:68ch">De klant markeert zelf een probleem op het plan, voegt een foto toe en Stonefloors krijgt de melding met zone, datum en belastingsprofiel erbij. Zo zit een herstelling in het dossier vóór ze uitgevoerd is.</p>
+    <form class="melding" id="meldform">
+      <label for="m-zone">Zone</label>
+      <select id="m-zone"></select>
+      <label for="m-type">Type</label>
+      <select id="m-type">
+        <option>Barst of scheur</option><option>Loskomende plint of goot</option><option>Slijtage heftruckbaan</option><option>Verkleuring of chemische aantasting</option><option>Waterophoping (afschot)</option><option>Andere</option>
+      </select>
+      <label for="m-urg">Urgentie</label>
+      <select id="m-urg"><option>Opvolgen bij volgende inspectie</option><option>Binnen 2 weken bekijken</option><option>Dringend, productie in gevaar</option></select>
+      <label for="m-omschr">Omschrijving</label>
+      <textarea id="m-omschr" placeholder="Bv. barst van ± 40 cm naast afvoergoot 3, water blijft staan."></textarea>
+      <label for="m-foto">Foto</label>
+      <input type="file" id="m-foto" accept="image/*">
+      <div style="margin-top:16px"><button class="btn" type="submit">Melding versturen</button></div>
+      <div class="toast" id="m-toast" hidden></div>
+    </form>
+  </section>
+
+  <!-- TOEGANG -->
+  <section role="tabpanel" id="panel-toegang" aria-labelledby="tab-toegang" hidden>
+    <div class="kicker">Beveiliging</div>
+    <h2>Wie ziet wat</h2>
+    <p class="hint" style="max-width:68ch">Elke klant ziet enkel zijn eigen site. Toegang wordt per persoon toegekend en kan onmiddellijk ingetrokken worden. Elke pagina draagt een watermerk met naam en datum. Elke raadpleging wordt gelogd.</p>
+    <div class="toegang">
+      <div class="kaart"><div class="rol">Kwaliteitsverantwoordelijke</div><ul class="lijst check"><li>Plan, historiek, auditrapport</li><li>Schade melden</li><li>Rapport downloaden</li></ul></div>
+      <div class="kaart"><div class="rol">Technische dienst</div><ul class="lijst check"><li>Plan, historiek, kalender</li><li>Schade melden</li><li>Technische fiches en VIB's</li></ul></div>
+      <div class="kaart"><div class="rol">Aankoop / directie</div><ul class="lijst check"><li>Overzicht en kalender</li><li>Kostenhistoriek per zone</li><li>Geen technische documenten</li></ul></div>
+      <div class="kaart"><div class="rol">Stonefloors</div><ul class="lijst check"><li>Alles bewerken</li><li>Toegang toekennen en intrekken</li><li>Export op vraag bij einde samenwerking</li></ul></div>
+    </div>
+    <h3 style="margin-top:26px">Toegangslog (laatste 5)</h3>
+    <ul class="lijst log">
+      <li><span class="d">24-09-2026 08:12</span> · a.demeester (kwaliteit) · Auditrapport geopend</li>
+      <li><span class="d">22-09-2026 16:40</span> · t.vanhove (technische dienst) · Melding aangemaakt zone E</li>
+      <li><span class="d">18-09-2026 10:03</span> · Stonefloors · Interventie 2026-09 toegevoegd zone B</li>
+      <li><span class="d">11-09-2026 09:27</span> · a.demeester (kwaliteit) · Plan geraadpleegd</li>
+      <li><span class="d">02-09-2026 14:55</span> · Stonefloors · Inspectie 2026-Q3 geregistreerd</li>
+    </ul>
+  </section>
+
+  <div class="band">
+    <div><b>Uw vloer, volledig gedocumenteerd</b><br>Van aanleg tot audit: één dossier, altijd up-to-date.</div>
+    <span class="btn" style="cursor:default">info@stonefloors.be · 051 20 39 26</span>
+  </div>
+  <footer>Stonefloors bv · Ardooisesteenweg 303H, 8800 Roeselare · BTW BE0477861986 · Demo-omgeving met fictieve gegevens. Geen enkel gegeven in deze demo verwijst naar een bestaande klant.</footer>
+</main>
+
+<script>
+const ZONES = {
+  A:{naam:"Productiehal",systeem:"Ucrete UD200",dikte:"9 mm",m2:1480,aangelegd:"2019-03",garantie:"2029-03",freq:"halfjaarlijks",volgende:"2027-03",status:"ok",
+     belasting:["Heftruck 2,5 t (massief)","Nat, 8 u/dag","Reiniging 60 °C","Vetzuren, bloed","Thermische schok"],
+     geschikt:"HACCP-conform, antislip R11, naadloos",
+     opm:"Zwaar transport concentreert zich op de baan tussen deur B en laadkaai 1. Bij overschakeling naar zwaardere heftrucks (gepland 2028) laagdikte herevalueren."},
+  B:{naam:"Wasplaats",systeem:"Ucrete UD200",dikte:"12 mm",m2:210,aangelegd:"2019-03",garantie:"2029-03",freq:"halfjaarlijks",volgende:"2027-03",status:"let",
+     belasting:["Permanent nat","Hete spoeling 80 °C","Alkalisch + zuur (CIP)","Kratwagens"],
+     geschikt:"HACCP-conform, antislip R12, hellingen naar goten",
+     opm:"Plint aan goot 3 vertoonde in 2026-09 een haarscheur. Hersteld, opvolgen bij inspectie 2027-03."},
+  C:{naam:"Koelcel −2 °C",systeem:"Ucrete HF",dikte:"6 mm",m2:220,aangelegd:"2021-11",garantie:"2031-11",freq:"jaarlijks",volgende:"2027-11",status:"ok",
+     belasting:["Constant −2 °C","Palletwagens","Droge reiniging"],
+     geschikt:"Bestand tegen vries-dooi, aangelegd bij 8 °C",
+     opm:"Geen opmerkingen."},
+  D:{naam:"Verpakking",systeem:"Ucrete MF",dikte:"4 mm",m2:640,aangelegd:"2021-11",garantie:"2031-11",freq:"jaarlijks",volgende:"2027-11",status:"ok",
+     belasting:["Elektrische palletwagens","Droog tot licht nat","Neutrale reiniging"],
+     geschikt:"Glad, gemakkelijk reinigbaar, lage emissie",
+     opm:"Plinten vervangen 2024-05 na aanpassing verpakkingslijn 2."},
+  E:{naam:"Expeditie & laadkaai",systeem:"Epoxy EP-coating",dikte:"2 mm",m2:1150,aangelegd:"2016-06",garantie:"2021-06 (verlopen)",freq:"halfjaarlijks",volgende:"2026-10",status:"kritiek",
+     belasting:["Heftruck 3,5 t","Draaicirkels aan laadkaaien","Buitenvocht, strooizout","Temperatuurwissel"],
+     geschikt:"Beperkt: slijtage op draaicirkels, niet HACCP-zone",
+     opm:"Coating doorgesleten op draaicirkel laadkaai 2. Offerte klaar voor vervanging door Ucrete UD200 9 mm in twee weekends (oktober 2026). Belasting zal toenemen bij nieuwe heftruckvloot (2027)."},
+  F:{naam:"Droge opslag",systeem:"Betonvloer geslepen",dikte:"—",m2:590,aangelegd:"2016-06",garantie:"n.v.t.",freq:"jaarlijks",volgende:"2027-06",status:"ok",
+     belasting:["Stapelaar","Droog","Stof"],
+     geschikt:"Stofvrij geslepen, verzegeld",
+     opm:"Klant overweegt uitbreiding koelcapaciteit in deze zone. Bij ombouw naar koelzone is Ucrete HF nodig."}
+};
+const INT = [
+  {d:"2026-09-18",z:"B",t:"Herstel haarscheur plint goot 3",s:"Ucrete UD200, 12 mm, 3,5 m plint",door:"Ploeg 2 (2 man, 1 dag)",docs:["Technische fiche UD200","VIB UD200","Foto's voor/na"],m:3},
+  {d:"2026-09-02",z:"alle",t:"Inspectie 2026-Q3",s:"Visuele controle, vochtmeting, slijtagemeting draaicirkels",door:"Projectverantwoordelijke",docs:["Inspectieverslag Q3"],m:null},
+  {d:"2026-03-05",z:"alle",t:"Inspectie 2026-Q1",s:"Visuele controle, slijtagemeting",door:"Projectverantwoordelijke",docs:["Inspectieverslag Q1"],m:null},
+  {d:"2025-08-11",z:"E",t:"Tussentijds herstel draaicirkel laadkaai 2",s:"Epoxy EP-coating lokaal, 18 m²",door:"Ploeg 1 (2 man, 1 dag)",docs:["Technische fiche EP","Foto's voor/na"],m:5},
+  {d:"2025-02-14",z:"A",t:"Herstel afvoergoot 2 en aansluiting",s:"Ucrete UD200, 9 mm, 4 m² rond goot",door:"Ploeg 2 (3 man, 2 dagen)",docs:["Technische fiche UD200","VIB UD200","Foto's voor/na"],m:2},
+  {d:"2024-05-21",z:"D",t:"Plinten vervangen na verplaatsing lijn 2",s:"Ucrete MF plint 100 mm, 38 m",door:"Ploeg 1 (2 man, 2 dagen)",docs:["Technische fiche MF","Foto's voor/na"],m:6},
+  {d:"2023-10-09",z:"A",t:"Herstel impactschade kraan",s:"Ucrete UD200, 9 mm, 6 m²",door:"Ploeg 2 (2 man, 1 dag)",docs:["Technische fiche UD200","Foto's voor/na"],m:1},
+  {d:"2021-11-15",z:"C",t:"Aanleg koelcel",s:"Ucrete HF, 6 mm, 220 m², aangelegd bij 8 °C",door:"Ploeg 1+2 (5 man, 4 dagen)",docs:["Technische fiche HF","VIB HF","Opleveringsverslag","Garantiebewijs"],m:4},
+  {d:"2021-11-08",z:"D",t:"Aanleg verpakking",s:"Ucrete MF, 4 mm, 640 m²",door:"Ploeg 1+2 (5 man, 5 dagen)",docs:["Technische fiche MF","VIB MF","Opleveringsverslag","Garantiebewijs"],m:null},
+  {d:"2019-03-04",z:"A",t:"Aanleg productiehal",s:"Ucrete UD200, 9 mm, 1.480 m², goten en hellingen",door:"Ploeg 1+2 (6 man, 9 dagen)",docs:["Technische fiche UD200","VIB UD200","Opleveringsverslag","Garantiebewijs"],m:null},
+  {d:"2019-03-01",z:"B",t:"Aanleg wasplaats",s:"Ucrete UD200, 12 mm, 210 m², hellingen 1,5 %",door:"Ploeg 1 (3 man, 3 dagen)",docs:["Technische fiche UD200","Opleveringsverslag","Garantiebewijs"],m:null},
+  {d:"2016-06-13",z:"E",t:"Aanleg expeditie",s:"Epoxy EP-coating, 2 mm, 1.150 m²",door:"Ploeg 1 (4 man, 4 dagen)",docs:["Technische fiche EP","Opleveringsverslag"],m:null},
+  {d:"2016-06-06",z:"F",t:"Slijpen en verzegelen droge opslag",s:"Beton geslepen, 590 m²",door:"Ploeg 2 (3 man, 3 dagen)",docs:["Opleveringsverslag"],m:null},
+  {d:"2026-10-17",z:"E",t:"GEPLAND · Vervanging expeditie",s:"Ucrete UD200, 9 mm, 1.150 m², in twee weekends",door:"Ploeg 1+2",docs:["Offerte 2026-0412","Planning"],m:5,gepland:true}
+];
+const STATUS = {ok:"Binnen garantie",let:"Opvolgen",kritiek:"Actie gepland"};
+const fmtD = s => { const [y,m,d] = s.split("-"); return d ? `${d}-${m}-${y}` : `${m}-${y}`; };
+const vandaag = new Date();
+const dS = vandaag.toLocaleDateString("nl-BE",{day:"2-digit",month:"2-digit",year:"numeric"});
+
+// watermerk
+(()=>{const wm=document.getElementById("wm");const txt=`DEMO · a.demeester · Demo Foods · ${dS}`;for(let r=0;r<10;r++)for(let c=0;c<4;c++){const s=document.createElement("span");s.textContent=txt;s.style.top=(r*170-80)+"px";s.style.left=(c*520-200+(r%2)*260)+"px";wm.appendChild(s);}})();
+
+// tegels
+(()=>{const m2=Object.values(ZONES).reduce((a,z)=>a+z.m2,0);const el=document.getElementById("tegels");
+el.innerHTML=[
+ [m2.toLocaleString("nl-BE")+" m²","Vloer in dossier",""],
+ [Object.keys(ZONES).length,"Zones",""],
+ [INT.filter(i=>!i.gepland).length,"Interventies sinds 2016",""],
+ [Object.values(ZONES).filter(z=>z.status!=="ok").length,"Punten open","let"],
+ ["17-10-2026","Volgende werk (zone E)",""]
+].map(([n,l,c])=>`<div class="tegel ${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");})();
+
+// detail
+function toonZone(k){
+  document.querySelectorAll(".zone").forEach(z=>z.classList.toggle("actief",z.dataset.zone===k));
+  const z=ZONES[k];
+  const hist=INT.filter(i=>i.z===k).slice(0,4);
+  document.getElementById("detail").innerHTML=`
+    <div class="kicker">Zone ${k}</div>
+    <h2>${z.naam} <span class="status ${z.status}">${STATUS[z.status]}</span></h2>
+    <dl>
+      <dt>Systeem</dt><dd>${z.systeem} · ${z.dikte}</dd>
+      <dt>Oppervlakte</dt><dd>${z.m2.toLocaleString("nl-BE")} m²</dd>
+      <dt>Aangelegd</dt><dd>${fmtD(z.aangelegd)}</dd>
+      <dt>Garantie</dt><dd>${z.garantie.includes("-")?fmtD(z.garantie.split(" ")[0])+(z.garantie.includes("(")?" (verlopen)":""):z.garantie}</dd>
+      <dt>Inspectie</dt><dd>${z.freq}, volgende ${fmtD(z.volgende)}</dd>
+      <dt>Geschiktheid</dt><dd>${z.geschikt}</dd>
+    </dl>
+    <h3>Belastingsprofiel</h3>
+    <div class="belasting" style="margin:8px 0 14px">${z.belasting.map(b=>`<span class="chip ${/heftruck|CIP|80 °C|strooizout/i.test(b)?"hoog":""}">${b}</span>`).join("")}</div>
+    <h3>Opmerking</h3>
+    <p style="margin:6px 0 14px;font-size:.9rem">${z.opm}</p>
+    <h3>Laatste interventies</h3>
+    <ul class="lijst">${hist.map(i=>`<li><span class="d">${fmtD(i.d)}</span><br>${i.t}</li>`).join("")||"<li>Geen</li>"}</ul>`;
+}
+document.querySelectorAll(".zone").forEach(z=>{z.addEventListener("click",()=>toonZone(z.dataset.zone));z.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toonZone(z.dataset.zone);}});});
+toonZone("E");
+
+// tijdlijn
+let filter="alle";
+function renderTl(){
+  const lijst=INT.filter(i=>filter==="alle"||i.z===filter||i.z==="alle").sort((a,b)=>b.d.localeCompare(a.d));
+  document.getElementById("tijdlijn").innerHTML=lijst.map(i=>`<li class="${i.gepland?"gepland":""}">
+    <span class="d">${fmtD(i.d)}</span> · <span class="z">${i.z==="alle"?"Alle zones":"Zone "+i.z+" · "+ZONES[i.z].naam}</span>${i.m?` · <span class="hint">marker ${i.m} op plan</span>`:""}
+    <p><b>${i.t}</b><br>${i.s}<br><span class="hint">${i.door}</span></p>
+    ${i.docs.map(d=>`<span class="doc">${d}</span>`).join("")}</li>`).join("");
+  document.querySelectorAll("#tl-filter .tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.f===filter));
+}
+document.getElementById("tl-filter").innerHTML=`<button class="tab" data-f="alle" aria-selected="true">Alle zones</button>`+Object.keys(ZONES).map(k=>`<button class="tab" data-f="${k}">Zone ${k}</button>`).join("");
+document.querySelectorAll("#tl-filter .tab").forEach(b=>b.addEventListener("click",()=>{filter=b.dataset.f;renderTl();}));
+renderTl();
+
+// kalender
+document.querySelector("#kalender tbody").innerHTML=Object.entries(ZONES).map(([k,z])=>`<tr>
+  <td><b>${k}</b> · ${z.naam}</td><td>${z.systeem} · ${z.dikte}</td><td class="n">${fmtD(z.aangelegd)}</td>
+  <td class="n">${z.garantie.includes("-")?fmtD(z.garantie.split(" ")[0])+(z.garantie.includes("(")?" ⚠":""):z.garantie}</td>
+  <td>${z.belasting[0]}</td><td>${z.freq}</td><td class="n">${fmtD(z.volgende)}</td><td><span class="status ${z.status}">${STATUS[z.status]}</span></td></tr>`).join("");
+
+// rapport
+document.getElementById("rap-datum").textContent=dS;
+const geldig=new Date(vandaag);geldig.setMonth(geldig.getMonth()+6);
+document.getElementById("rap-geldig").textContent=geldig.toLocaleDateString("nl-BE",{day:"2-digit",month:"2-digit",year:"numeric"});
+document.querySelector("#rap-systemen tbody").innerHTML=Object.entries(ZONES).map(([k,z])=>`<tr><td>${k} · ${z.naam}</td><td>${z.systeem}</td><td>${z.dikte}</td><td>${z.geschikt}</td><td>${z.systeem.includes("Ucrete")?"TF + VIB gekoppeld":z.systeem.includes("Epoxy")?"TF gekoppeld":"—"}</td></tr>`).join("");
+const twee=new Date(vandaag);twee.setMonth(twee.getMonth()-24);
+document.getElementById("rap-interventies").innerHTML=INT.filter(i=>!i.gepland&&new Date(i.d)>=twee).sort((a,b)=>b.d.localeCompare(a.d)).map(i=>`<li><span class="d">${fmtD(i.d)}</span> · ${i.z==="alle"?"Alle zones":"Zone "+i.z} · ${i.t} (${i.s})</li>`).join("");
+document.getElementById("rap-staat").innerHTML=Object.entries(ZONES).map(([k,z])=>`<li><span class="status ${z.status}">${STATUS[z.status]}</span> &nbsp;<b>Zone ${k} · ${z.naam}</b>: ${z.opm}</li>`).join("");
+document.getElementById("kopieer").addEventListener("click",e=>{
+  const t=document.getElementById("rapport").innerText;
+  navigator.clipboard.writeText(t).then(()=>{e.target.textContent="Gekopieerd";setTimeout(()=>e.target.textContent="Rapporttekst kopiëren",1800);}).catch(()=>{const r=document.createRange();r.selectNodeContents(document.getElementById("rapport"));const s=getSelection();s.removeAllRanges();s.addRange(r);});
+});
+
+// melding
+document.getElementById("m-zone").innerHTML=Object.entries(ZONES).map(([k,z])=>`<option value="${k}">${k} · ${z.naam}</option>`).join("");
+document.getElementById("meldform").addEventListener("submit",e=>{
+  e.preventDefault();
+  const k=document.getElementById("m-zone").value;const t=document.getElementById("m-toast");
+  t.hidden=false;t.innerHTML=`<b>Melding geregistreerd</b> (demo, niets verstuurd).<br>Zone ${k} · ${document.getElementById("m-type").value} · ${document.getElementById("m-urg").value}<br>Stonefloors ziet er meteen het belastingsprofiel van zone ${k} bij: ${ZONES[k].belasting.join(", ")}.`;
+});
+
+// tabs
+document.querySelectorAll('.tabs [role="tab"]').forEach(t=>t.addEventListener("click",()=>{
+  document.querySelectorAll('.tabs [role="tab"]').forEach(x=>x.setAttribute("aria-selected",x===t));
+  document.querySelectorAll('[role="tabpanel"]').forEach(p=>p.hidden=p.id!=="panel-"+t.dataset.tab);
+  try{localStorage.setItem("sf-tab",t.dataset.tab);}catch{}
+}));
+try{const s=localStorage.getItem("sf-tab");if(s&&document.getElementById("tab-"+s))document.getElementById("tab-"+s).click();}catch{}
+</script>
+</body>
+</html>

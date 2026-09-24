@@ -243,7 +243,7 @@ footer{font-size:.78rem;color:var(--muted);margin-top:28px;text-align:center}
           </svg>
         </div>
         <div class="legende">
-          <span><i style="background:var(--ok)"></i>Hersteld, binnen garantie</span>
+          <span><i style="background:var(--ok)"></i>Hersteld</span>
           <span><i style="background:var(--let)"></i>Opvolgen bij volgende inspectie</span>
           <span><i style="background:var(--kritiek)"></i>Actie gepland</span>
           <span><i style="background:var(--groen);border-radius:2px"></i>Doorgang / laadkaai</span>
@@ -265,11 +265,11 @@ footer{font-size:.78rem;color:var(--muted);margin-top:28px;text-align:center}
   <!-- KALENDER -->
   <section role="tabpanel" id="panel-kalender" aria-labelledby="tab-kalender" hidden>
     <div class="kicker">Planning</div>
-    <h2>Inspectiekalender &amp; garantie</h2>
-    <p class="hint">Per zone: garantietermijn, aanbevolen inspectiefrequentie en de volgende geplande inspectie. Belasting bepaalt de frequentie.</p>
+    <h2>Inspectiekalender</h2>
+    <p class="hint">Per zone: aanbevolen inspectiefrequentie en de volgende geplande inspectie. Belasting bepaalt de frequentie.</p>
     <div class="tabelwrap">
       <table id="kalender">
-        <thead><tr><th>Zone</th><th>Systeem</th><th>Aangelegd</th><th>Garantie tot</th><th>Belasting</th><th>Inspectie</th><th>Volgende</th><th>Status</th></tr></thead>
+        <thead><tr><th>Zone</th><th>Systeem</th><th>Aangelegd</th><th>Belasting</th><th>Inspectie</th><th>Volgende</th><th>Status</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -376,27 +376,27 @@ footer{font-size:.78rem;color:var(--muted);margin-top:28px;text-align:center}
 
 <script>
 const ZONES = {
-  A:{naam:"Productiehal",systeem:"Ucrete UD200",dikte:"9 mm",m2:1480,aangelegd:"2019-03",garantie:"2029-03",freq:"halfjaarlijks",volgende:"2027-03",status:"ok",
+  A:{naam:"Productiehal",systeem:"Ucrete UD200",dikte:"9 mm",m2:1480,aangelegd:"2019-03",freq:"halfjaarlijks",volgende:"2027-03",status:"ok",
      belasting:["Heftruck 2,5 t (massief)","Nat, 8 u/dag","Reiniging 60 °C","Vetzuren, bloed","Thermische schok"],
      geschikt:"HACCP-conform, antislip R11, naadloos",
      opm:"Zwaar transport concentreert zich op de baan tussen deur B en laadkaai 1. Bij overschakeling naar zwaardere heftrucks (gepland 2028) laagdikte herevalueren."},
-  B:{naam:"Wasplaats",systeem:"Ucrete UD200",dikte:"12 mm",m2:210,aangelegd:"2019-03",garantie:"2029-03",freq:"halfjaarlijks",volgende:"2027-03",status:"let",
+  B:{naam:"Wasplaats",systeem:"Ucrete UD200",dikte:"12 mm",m2:210,aangelegd:"2019-03",freq:"halfjaarlijks",volgende:"2027-03",status:"let",
      belasting:["Permanent nat","Hete spoeling 80 °C","Alkalisch + zuur (CIP)","Kratwagens"],
      geschikt:"HACCP-conform, antislip R12, hellingen naar goten",
      opm:"Plint aan goot 3 vertoonde in 2026-09 een haarscheur. Hersteld, opvolgen bij inspectie 2027-03."},
-  C:{naam:"Koelcel −2 °C",systeem:"Ucrete HF",dikte:"6 mm",m2:220,aangelegd:"2021-11",garantie:"2031-11",freq:"jaarlijks",volgende:"2027-11",status:"ok",
+  C:{naam:"Koelcel −2 °C",systeem:"Ucrete HF",dikte:"6 mm",m2:220,aangelegd:"2021-11",freq:"jaarlijks",volgende:"2027-11",status:"ok",
      belasting:["Constant −2 °C","Palletwagens","Droge reiniging"],
      geschikt:"Bestand tegen vries-dooi, aangelegd bij 8 °C",
      opm:"Geen opmerkingen."},
-  D:{naam:"Verpakking",systeem:"Ucrete MF",dikte:"4 mm",m2:640,aangelegd:"2021-11",garantie:"2031-11",freq:"jaarlijks",volgende:"2027-11",status:"ok",
+  D:{naam:"Verpakking",systeem:"Ucrete MF",dikte:"4 mm",m2:640,aangelegd:"2021-11",freq:"jaarlijks",volgende:"2027-11",status:"ok",
      belasting:["Elektrische palletwagens","Droog tot licht nat","Neutrale reiniging"],
      geschikt:"Glad, gemakkelijk reinigbaar, lage emissie",
      opm:"Plinten vervangen 2024-05 na aanpassing verpakkingslijn 2."},
-  E:{naam:"Expeditie & laadkaai",systeem:"Epoxy EP-coating",dikte:"2 mm",m2:1150,aangelegd:"2016-06",garantie:"2021-06 (verlopen)",freq:"halfjaarlijks",volgende:"2026-10",status:"kritiek",
+  E:{naam:"Expeditie & laadkaai",systeem:"Epoxy EP-coating",dikte:"2 mm",m2:1150,aangelegd:"2016-06",freq:"halfjaarlijks",volgende:"2026-10",status:"kritiek",
      belasting:["Heftruck 3,5 t","Draaicirkels aan laadkaaien","Buitenvocht, strooizout","Temperatuurwissel"],
      geschikt:"Beperkt: slijtage op draaicirkels, niet HACCP-zone",
      opm:"Coating doorgesleten op draaicirkel laadkaai 2. Offerte klaar voor vervanging door Ucrete UD200 9 mm in twee weekends (oktober 2026). Belasting zal toenemen bij nieuwe heftruckvloot (2027)."},
-  F:{naam:"Droge opslag",systeem:"Betonvloer geslepen",dikte:"—",m2:590,aangelegd:"2016-06",garantie:"n.v.t.",freq:"jaarlijks",volgende:"2027-06",status:"ok",
+  F:{naam:"Droge opslag",systeem:"Betonvloer geslepen",dikte:"—",m2:590,aangelegd:"2016-06",freq:"jaarlijks",volgende:"2027-06",status:"ok",
      belasting:["Stapelaar","Droog","Stof"],
      geschikt:"Stofvrij geslepen, verzegeld",
      opm:"Klant overweegt uitbreiding koelcapaciteit in deze zone. Bij ombouw naar koelzone is Ucrete HF nodig."}
@@ -409,15 +409,15 @@ const INT = [
   {d:"2025-02-14",z:"A",t:"Herstel afvoergoot 2 en aansluiting",s:"Ucrete UD200, 9 mm, 4 m² rond goot",door:"Ploeg 2 (3 man, 2 dagen)",docs:["Technische fiche UD200","VIB UD200","Foto's voor/na"],m:2},
   {d:"2024-05-21",z:"D",t:"Plinten vervangen na verplaatsing lijn 2",s:"Ucrete MF plint 100 mm, 38 m",door:"Ploeg 1 (2 man, 2 dagen)",docs:["Technische fiche MF","Foto's voor/na"],m:6},
   {d:"2023-10-09",z:"A",t:"Herstel impactschade kraan",s:"Ucrete UD200, 9 mm, 6 m²",door:"Ploeg 2 (2 man, 1 dag)",docs:["Technische fiche UD200","Foto's voor/na"],m:1},
-  {d:"2021-11-15",z:"C",t:"Aanleg koelcel",s:"Ucrete HF, 6 mm, 220 m², aangelegd bij 8 °C",door:"Ploeg 1+2 (5 man, 4 dagen)",docs:["Technische fiche HF","VIB HF","Opleveringsverslag","Garantiebewijs"],m:4},
-  {d:"2021-11-08",z:"D",t:"Aanleg verpakking",s:"Ucrete MF, 4 mm, 640 m²",door:"Ploeg 1+2 (5 man, 5 dagen)",docs:["Technische fiche MF","VIB MF","Opleveringsverslag","Garantiebewijs"],m:null},
-  {d:"2019-03-04",z:"A",t:"Aanleg productiehal",s:"Ucrete UD200, 9 mm, 1.480 m², goten en hellingen",door:"Ploeg 1+2 (6 man, 9 dagen)",docs:["Technische fiche UD200","VIB UD200","Opleveringsverslag","Garantiebewijs"],m:null},
-  {d:"2019-03-01",z:"B",t:"Aanleg wasplaats",s:"Ucrete UD200, 12 mm, 210 m², hellingen 1,5 %",door:"Ploeg 1 (3 man, 3 dagen)",docs:["Technische fiche UD200","Opleveringsverslag","Garantiebewijs"],m:null},
+  {d:"2021-11-15",z:"C",t:"Aanleg koelcel",s:"Ucrete HF, 6 mm, 220 m², aangelegd bij 8 °C",door:"Ploeg 1+2 (5 man, 4 dagen)",docs:["Technische fiche HF","VIB HF","Opleveringsverslag"],m:4},
+  {d:"2021-11-08",z:"D",t:"Aanleg verpakking",s:"Ucrete MF, 4 mm, 640 m²",door:"Ploeg 1+2 (5 man, 5 dagen)",docs:["Technische fiche MF","VIB MF","Opleveringsverslag"],m:null},
+  {d:"2019-03-04",z:"A",t:"Aanleg productiehal",s:"Ucrete UD200, 9 mm, 1.480 m², goten en hellingen",door:"Ploeg 1+2 (6 man, 9 dagen)",docs:["Technische fiche UD200","VIB UD200","Opleveringsverslag"],m:null},
+  {d:"2019-03-01",z:"B",t:"Aanleg wasplaats",s:"Ucrete UD200, 12 mm, 210 m², hellingen 1,5 %",door:"Ploeg 1 (3 man, 3 dagen)",docs:["Technische fiche UD200","Opleveringsverslag"],m:null},
   {d:"2016-06-13",z:"E",t:"Aanleg expeditie",s:"Epoxy EP-coating, 2 mm, 1.150 m²",door:"Ploeg 1 (4 man, 4 dagen)",docs:["Technische fiche EP","Opleveringsverslag"],m:null},
   {d:"2016-06-06",z:"F",t:"Slijpen en verzegelen droge opslag",s:"Beton geslepen, 590 m²",door:"Ploeg 2 (3 man, 3 dagen)",docs:["Opleveringsverslag"],m:null},
   {d:"2026-10-17",z:"E",t:"GEPLAND · Vervanging expeditie",s:"Ucrete UD200, 9 mm, 1.150 m², in twee weekends",door:"Ploeg 1+2",docs:["Offerte 2026-0412","Planning"],m:5,gepland:true}
 ];
-const STATUS = {ok:"Binnen garantie",let:"Opvolgen",kritiek:"Actie gepland"};
+const STATUS = {ok:"In orde",let:"Opvolgen",kritiek:"Actie gepland"};
 const fmtD = s => { const [y,m,d] = s.split("-"); return d ? `${d}-${m}-${y}` : `${m}-${y}`; };
 const vandaag = new Date();
 const dS = vandaag.toLocaleDateString("nl-BE",{day:"2-digit",month:"2-digit",year:"numeric"});
@@ -447,7 +447,6 @@ function toonZone(k){
       <dt>Systeem</dt><dd>${z.systeem} · ${z.dikte}</dd>
       <dt>Oppervlakte</dt><dd>${z.m2.toLocaleString("nl-BE")} m²</dd>
       <dt>Aangelegd</dt><dd>${fmtD(z.aangelegd)}</dd>
-      <dt>Garantie</dt><dd>${z.garantie.includes("-")?fmtD(z.garantie.split(" ")[0])+(z.garantie.includes("(")?" (verlopen)":""):z.garantie}</dd>
       <dt>Inspectie</dt><dd>${z.freq}, volgende ${fmtD(z.volgende)}</dd>
       <dt>Geschiktheid</dt><dd>${z.geschikt}</dd>
     </dl>
@@ -478,7 +477,6 @@ renderTl();
 // kalender
 document.querySelector("#kalender tbody").innerHTML=Object.entries(ZONES).map(([k,z])=>`<tr>
   <td><b>${k}</b> · ${z.naam}</td><td>${z.systeem} · ${z.dikte}</td><td class="n">${fmtD(z.aangelegd)}</td>
-  <td class="n">${z.garantie.includes("-")?fmtD(z.garantie.split(" ")[0])+(z.garantie.includes("(")?" ⚠":""):z.garantie}</td>
   <td>${z.belasting[0]}</td><td>${z.freq}</td><td class="n">${fmtD(z.volgende)}</td><td><span class="status ${z.status}">${STATUS[z.status]}</span></td></tr>`).join("");
 
 // rapport

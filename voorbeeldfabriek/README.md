@@ -6,7 +6,7 @@ een bestaande klant.
 
 Wat de demo toont:
 
-- Plan met zes klikbare zones, systeem, laagdikte, garantie en status per zone
+- Plan met zes klikbare zones, systeem, laagdikte en status per zone
 - Belastingsprofiel per zone (transport, nat, chemie, temperatuur)
 - Interventiehistoriek met gekoppelde documenten (technische fiche, VIB, foto's, opleveringsverslag)
 - Inspectiekalender en reinigingsadvies
